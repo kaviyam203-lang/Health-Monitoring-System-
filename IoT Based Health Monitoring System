@@ -1,0 +1,104 @@
+# IoT Based Health Monitoring System
+
+An Arduino UNO based IoT project that monitors a patient's **heart rate (BPM)** and **body temperature** in real time, displays the readings locally on an LCD, triggers a buzzer alert on abnormal readings, and uploads the data to the **ThingSpeak IoT cloud** using an ESP8266 Wi-Fi module for remote monitoring.
+
+---
+
+## 📌 Overview
+Continuous manual monitoring of vital health parameters is not always feasible for elderly patients or people living in remote areas. This project provides a low-cost, automated solution that measures and transmits health data in real time, allowing doctors or caretakers to monitor patients remotely over the internet.
+
+---
+
+## 🛠️ Components Used
+
+| Component | Purpose |
+|---|---|
+| Arduino UNO | Main controller |
+| Pulse Sensor | Heart rate (BPM) measurement |
+| LM35 Temperature Sensor | Body temperature measurement |
+| ESP8266 Wi-Fi Module | Sends data to ThingSpeak cloud |
+| 16x2 LCD (I2C) | Local display of readings |
+| Buzzer | Alert on abnormal readings |
+| Breadboard & Jumper Wires | Circuit connections |
+
+---
+
+## 🔌 Circuit Connections
+
+| Component | Pin | Arduino UNO Pin |
+|---|---|---|
+| Pulse Sensor | Signal | A0 |
+| LM35 Sensor | Output | A1 |
+| LCD (I2C) | SDA / SCL | A4 / A5 |
+| Buzzer | Positive | Digital Pin 8 |
+| ESP8266 | RX / TX | Digital Pin 2 / 3 |
+
+---
+
+## 🧩 Block Diagram
+
+```
+Pulse Sensor ─┐
+              ├──► Arduino UNO ──► LCD (display)
+LM35 Sensor ──┘         │
+                         ├──► Buzzer (alert)
+                         │
+                         └──► ESP8266 ──► ThingSpeak Cloud ──► Mobile/Web Dashboard
+```
+
+---
+
+## ⚙️ Working
+
+1. Pulse Sensor and LM35 continuously send analog signals to the Arduino UNO.
+2. Arduino converts the raw values into BPM and °C, and displays them on the LCD.
+3. If BPM or temperature crosses a predefined safe threshold, the buzzer turns ON automatically.
+4. Arduino sends the readings to the ESP8266 over serial communication.
+5. ESP8266 uploads the data to ThingSpeak using an HTTP GET request every 15 seconds.
+6. Doctors/caretakers can view real-time graphs remotely on the ThingSpeak dashboard.
+
+---
+
+## 💻 Code
+See [`health_monitoring.ino`](./health_monitoring.ino) for the full Arduino source code.
+
+```cpp
+void loop() {
+  bpm = readPulse();                    // read heart rate from A0
+  temperature = readTemperature();      // read LM35 from A1
+
+  lcd.clear();
+  lcd.print("BPM:"); lcd.print(bpm);
+  lcd.setCursor(0,1);
+  lcd.print("Temp:"); lcd.print(temperature);
+
+  if (bpm > 100 || bpm < 50 || temperature > 38.0)
+      digitalWrite(buzzerPin, HIGH);     // alert
+  else
+      digitalWrite(buzzerPin, LOW);
+
+  sendToThingSpeak(bpm, temperature);    // upload via ESP8266
+  delay(15000);
+}
+```
+
+---
+
+## 📊 Result
+The prototype successfully measured heart rate and body temperature in real time, displayed values on the LCD, triggered the buzzer during abnormal readings, and uploaded data to ThingSpeak for remote monitoring — achieving all project objectives.
+
+---
+
+## 🚀 Future Scope
+- Add SpO2 and ECG sensors
+- Dedicated mobile app for real-time alerts
+- GPS module for emergency location tracking
+- SMS/Email alerts using GSM module
+
+---
+
+## 👩‍💻 Author
+**Kaviya M**
+Reg No: 24IT077
+B.Tech - Information Technology
+Gnamani College of Technology, Pachal - 637018
